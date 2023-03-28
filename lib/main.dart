@@ -13,10 +13,19 @@ class Test extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      initialRoute: "/",
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: TestMaterical(),
+      routes: {
+        "new_page": (context) => EchoRoute(),
+        "/": (context) => TestMaterical(),
+        "tip2": (context) {
+          return TipRoute(
+              text: ModalRoute.of(context)!.settings.arguments as String);
+        },
+      },
+      // home: TestMaterical(),
     );
   }
 }
@@ -39,6 +48,36 @@ class TestMaterical extends StatelessWidget {
             TapboxA(),
             SizedBox(width: 10),
             ParentWidget(),
+            SizedBox(width: 10),
+            // ParentWidgetC(),
+            SizedBox(width: 10),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, "new_page",
+                        arguments: "hello world");
+                    // Navigator.push(context,
+                    //     MaterialPageRoute(builder: (context) {
+                    //   return NewRoute();
+                    // }));
+                  },
+                  child: Text("open echo route"),
+                ),
+                RouterTestRoute(),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, "tip2", arguments: "hello");
+                    // Navigator.push(context,
+                    //     MaterialPageRoute(builder: (context) {
+                    //   return NewRoute();
+                    // }));
+                  },
+                  child: Text("open new route"),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -368,6 +407,195 @@ class TapboxB extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? Colors.lightGreen[700] : Colors.grey[600],
         ),
+      ),
+    );
+  }
+}
+
+class ParentWidgetC extends StatefulWidget {
+  const ParentWidgetC({Key? key}) : super(key: key);
+
+  @override
+  _ParentWidgetCState createState() => _ParentWidgetCState();
+}
+
+class _ParentWidgetCState extends State<ParentWidgetC> {
+  bool _active = false;
+
+  void _handleTapboxChanged(bool newValue) {
+    setState(() {
+      _active = newValue;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: TapboxC(
+        active: _active,
+        onChanged: _handleTapboxChanged,
+      ),
+    );
+  }
+}
+
+class TapboxC extends StatefulWidget {
+  const TapboxC({
+    Key? key,
+    this.active = false,
+    required this.onChanged,
+  }) : super(key: key);
+
+  final bool active;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  _TapboxCState createState() => _TapboxCState();
+}
+
+class _TapboxCState extends State<TapboxC> {
+  bool _highlight = false;
+
+  void _handleTapDown(TapDownDetails details) {
+    setState(() {
+      _highlight = true;
+    });
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTapCancel() {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTap() {
+    widget.onChanged(!widget.active);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _handleTapDown, // 处理按下事件
+      onTapUp: _handleTapUp, // 处理抬起事件
+      onTap: _handleTap,
+      onTapCancel: _handleTapCancel,
+      child: Container(
+        child: Center(
+          child: Text(
+            widget.active ? 'Active' : 'Inactive',
+            style: TextStyle(
+              fontSize: 32.0,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        width: 200.0,
+        height: 200.0,
+        decoration: BoxDecoration(
+          color: widget.active ? Colors.lightGreen[700] : Colors.grey[600],
+          border: _highlight
+              ? Border.all(
+                  color: Colors.teal[700]!,
+                  width: 10.0,
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+}
+
+class NewRoute extends StatelessWidget {
+  const NewRoute({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('New Route'),
+      ),
+      body: Center(
+        child: Text('This is new route'),
+      ),
+    );
+  }
+}
+
+class TipRoute extends StatelessWidget {
+  TipRoute({
+    Key? key,
+    @required this.text, // 接收一个text参数
+  }) : super(key: key);
+
+  final String? text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("提示"),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(18),
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              Text(text!),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, "我是返回值"),
+                child: Text("返回"),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class RouterTestRoute extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ElevatedButton(
+        onPressed: () async {
+          // 打开`TipRoute`，并等待返回结果
+          var result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return TipRoute(
+                  // 路由参数
+                  text: "我是提示xxxx",
+                );
+              },
+            ),
+          );
+          //输出`TipRoute`路由返回结果
+          print("路由返回值: $result");
+        },
+        child: Text("打开提示页"),
+      ),
+    );
+  }
+}
+
+class EchoRoute extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var args = ModalRoute.of(context)!.settings.arguments;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("提示"),
+      ),
+      body: Center(
+        child: Text("路由参数: $args"),
       ),
     );
   }
