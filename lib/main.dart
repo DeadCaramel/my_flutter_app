@@ -19,7 +19,7 @@ class Test extends StatelessWidget {
       ),
       routes: {
         "new_page": (context) => EchoRoute(),
-        "/": (context) => TestMaterical(),
+        "/": (context) => FocusTestRoute(),
         "tip2": (context) {
           return TipRoute(
               text: ModalRoute.of(context)!.settings.arguments as String);
@@ -596,6 +596,123 @@ class EchoRoute extends StatelessWidget {
       ),
       body: Center(
         child: Text("路由参数: $args"),
+      ),
+    );
+  }
+}
+
+class MyStatuefulWidget extends StatefulWidget {
+  const MyStatuefulWidget({Key? key}) : super(key: key);
+
+  @override
+  _MyStatuefulWidgetState createState() => _MyStatuefulWidgetState();
+}
+
+class _MyStatuefulWidgetState extends State<MyStatuefulWidget> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    _controller = TextEditingController();
+    _controller.text = "hello world!";
+    _controller.selection =
+        TextSelection(baseOffset: 2, extentOffset: _controller.text.length);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('StatefulWidget与基础组件'),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            TextField(
+              autofocus: true,
+              decoration: InputDecoration(
+                  labelText: "用户名",
+                  hintText: "用户名或邮箱",
+                  prefixIcon: Icon(Icons.person)),
+              controller: _controller,
+              onChanged: (value) => print(_controller.text),
+            ),
+            TextField(
+              decoration: InputDecoration(
+                  labelText: "密码",
+                  hintText: "您的登录密码",
+                  prefixIcon: Icon(Icons.lock)),
+              obscureText: true,
+              onChanged: (value) => print(value),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class FocusTestRoute extends StatefulWidget {
+  const FocusTestRoute({Key? key}) : super(key: key);
+
+  @override
+  _FocusTestRouteState createState() => _FocusTestRouteState();
+}
+
+class _FocusTestRouteState extends State<FocusTestRoute> {
+  FocusNode focusNode1 = FocusNode();
+  FocusNode focusNode2 = FocusNode();
+  FocusScopeNode? focusScopeNode;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('FocusTestRoute'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              autofocus: true,
+              focusNode: focusNode1, //关联focusNode1
+              decoration: InputDecoration(labelText: "input1"),
+            ),
+            TextField(
+              focusNode: focusNode2, //关联focusNode2
+              decoration: InputDecoration(labelText: "input2"),
+            ),
+            SizedBox(height: 20.0),
+            Builder(builder: (ctx) {
+              return Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      //将焦点从第一个TextField移到第二个TextField
+                      // 这是一种写法 FocusScope.of(context).requestFocus(focusNode2);
+                      // 这是第二种写法
+                      if (null == focusScopeNode) {
+                        focusScopeNode = FocusScope.of(context);
+                      }
+                      focusScopeNode!.requestFocus(focusNode2);
+                    },
+                    child: Text("移动焦点"),
+                  ),
+                  SizedBox(height: 20.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      // 隐藏键盘
+                      focusNode1.unfocus();
+                      focusNode2.unfocus();
+                    },
+                    child: Text("隐藏键盘"),
+                  ),
+                ],
+              );
+            })
+          ],
+        ),
       ),
     );
   }
