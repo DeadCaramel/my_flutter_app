@@ -19,7 +19,7 @@ class Test extends StatelessWidget {
       ),
       routes: {
         "new_page": (context) => EchoRoute(),
-        "/": (context) => FocusTestRoute(),
+        "/": (context) => ProgressRoute(),
         "tip2": (context) {
           return TipRoute(
               text: ModalRoute.of(context)!.settings.arguments as String);
@@ -715,5 +715,187 @@ class _FocusTestRouteState extends State<FocusTestRoute> {
         ),
       ),
     );
+  }
+}
+
+class FormTestRoute extends StatefulWidget {
+  const FormTestRoute({Key? key}) : super(key: key);
+
+  @override
+  _FormTestRouteState createState() => _FormTestRouteState();
+}
+
+class _FormTestRouteState extends State<FormTestRoute> {
+  TextEditingController _unameController = TextEditingController();
+  TextEditingController _pwdController = TextEditingController();
+  GlobalKey _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('FormTestRoute'),
+        ),
+        body: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              children: [
+                TextFormField(
+                  autofocus: true,
+                  controller: _unameController,
+                  decoration: InputDecoration(
+                      labelText: "用户名",
+                      hintText: "用户名或邮箱",
+                      icon: Icon(Icons.person)),
+                  validator: (v) {
+                    return v!.trim().length > 0 ? null : "用户名不能为空";
+                  },
+                ),
+                TextFormField(
+                  controller: _pwdController,
+                  decoration: InputDecoration(
+                      labelText: "密码",
+                      hintText: "您的登录密码",
+                      icon: Icon(Icons.lock)),
+                  obscureText: true,
+                  validator: (v) {
+                    return v!.trim().length > 5 ? null : "密码不能少于6位";
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(28.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Text("登录"),
+                          ),
+                          onPressed: () {
+                            if ((_formKey.currentState as FormState)
+                                .validate()) {
+                              print("验证通过");
+                            }
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(28.0),
+                  child: Column(
+                    children: [
+                      LinearProgressIndicator(
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation(Colors.blue),
+                      ),
+                      SizedBox(height: 20.0),
+                      LinearProgressIndicator(
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation(Colors.blue),
+                        value: .3,
+                      ),
+                      SizedBox(height: 20.0),
+                      Row(children: [
+                        CircularProgressIndicator(
+                          backgroundColor: Colors.grey[200],
+                          valueColor: AlwaysStoppedAnimation(Colors.blue),
+                        ),
+                        SizedBox(width: 20.0),
+                        CircularProgressIndicator(
+                          backgroundColor: Colors.grey[200],
+                          valueColor: AlwaysStoppedAnimation(Colors.blue),
+                          value: .3,
+                        ),
+                      ])
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                // 线性进度条高度指定为3
+                SizedBox(
+                  height: 3,
+                  child: LinearProgressIndicator(
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation(Colors.blue),
+                    value: .5,
+                  ),
+                ),
+                SizedBox(height: 20),
+// 圆形进度条直径指定为100
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation(Colors.blue),
+                    value: .7,
+                  ),
+                ),
+                SizedBox(height: 20),
+                // 宽高不等
+                SizedBox(
+                  height: 100,
+                  width: 130,
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation(Colors.blue),
+                    value: .7,
+                  ),
+                ),
+              ],
+            )));
+  }
+}
+
+class ProgressRoute extends StatefulWidget {
+  const ProgressRoute({Key? key}) : super(key: key);
+
+  @override
+  _ProgressRouteState createState() => _ProgressRouteState();
+}
+
+class _ProgressRouteState extends State<ProgressRoute>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 10000));
+    _animationController.forward();
+    _animationController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('ProgressRoute'),
+        ),
+        body: SingleChildScrollView(
+            child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: LinearProgressIndicator(
+              backgroundColor: Colors.grey[200],
+              valueColor: ColorTween(begin: Colors.grey, end: Colors.blue)
+                  .animate(_animationController),
+              value: _animationController.value,
+            ),
+          ),
+        ])));
   }
 }
