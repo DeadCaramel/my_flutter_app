@@ -19,7 +19,7 @@ class Test extends StatelessWidget {
       ),
       routes: {
         "new_page": (context) => EchoRoute(),
-        "/": (context) => FlexLayoutTestRoute(),
+        "/": (context) => WarpAndFlowRoute(),
         "tip2": (context) {
           return TipRoute(
               text: ModalRoute.of(context)!.settings.arguments as String);
@@ -931,29 +931,152 @@ class FlexLayoutTestRoute extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 20),
             child: SizedBox(
-              height: 100.0,
-              child: Flex(
-                direction: Axis.vertical,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      height: 30.0,
-                      color: Colors.red,
-                    )),
+                height: 100.0,
+                child: Flex(
+                  direction: Axis.vertical,
+                  children: [
+                    Expanded(
+                        flex: 2,
+                        child: Container(
+                          height: 30.0,
+                          color: Colors.red,
+                        )),
                     Spacer(
                       flex: 1,
                     ),
                     Expanded(
-                      flex: 1,
-                      child: Container(
-                        height: 30.0,
-                        color: Colors.green,
-                      ))
-                ],
-                )),)
+                        flex: 1,
+                        child: Container(
+                          height: 30.0,
+                          color: Colors.green,
+                        ))
+                  ],
+                )),
+          )
         ],
       ),
     );
+  }
+}
+
+class WarpAndFlowRoute extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Warp and Flow"),
+      ),
+      body: Wrap(
+        spacing: 8.0,
+        runSpacing: 4.0,
+        alignment: WrapAlignment.center,
+        children: [
+          Chip(
+            label: Text("Hamilton"),
+            avatar: CircleAvatar(
+              backgroundColor: Colors.blue,
+              child: Text('A'),
+            ),
+          ),
+          Chip(
+            label: Text("Lafayette"),
+            avatar: CircleAvatar(
+              backgroundColor: Colors.blue,
+              child: Text('M'),
+            ),
+          ),
+          Chip(
+            label: Text("Mulligan"),
+            avatar: CircleAvatar(
+              backgroundColor: Colors.blue,
+              child: Text('H'),
+            ),
+          ),
+          Chip(
+            label: Text("Laurens"),
+            avatar: CircleAvatar(
+              backgroundColor: Colors.blue,
+              child: Text('J'),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Flow(
+            delegate: TestFlowDelegate(margin: EdgeInsets.all(10)),
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                color: Colors.red,
+              ),
+              Container(
+                width: 80,
+                height: 80,
+                color: Colors.green,
+              ),
+              Container(
+                width: 80,
+                height: 80,
+                color: Colors.blue,
+              ),
+              Container(
+                width: 80,
+                height: 80,
+                color: Colors.yellow,
+              ),
+              Container(
+                width: 80,
+                height: 80,
+                color: Colors.brown,
+              ),
+              Container(
+                width: 80,
+                height: 80,
+                color: Colors.purple,
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class TestFlowDelegate extends FlowDelegate {
+  EdgeInsets margin;
+
+  TestFlowDelegate({this.margin = EdgeInsets.zero});
+
+  double width = 0;
+  double height = 0;
+
+  @override
+  void paintChildren(FlowPaintingContext context) {
+    var x = margin.left;
+    var y = margin.top;
+
+    for (int i = 0; i < context.childCount; i++) {
+      var w = context.getChildSize(i)!.width + x + margin.right;
+      if (w < context.size.width) {
+        context.paintChild(i, transform: Matrix4.translationValues(x, y, 0));
+        x = w + margin.left;
+      } else {
+        x = margin.left;
+        y += context.getChildSize(i)!.height + margin.top + margin.bottom;
+        context.paintChild(i, transform: Matrix4.translationValues(x, y, 0));
+        x += context.getChildSize(i)!.width + margin.left + margin.right;
+      }
+    }
+  }
+
+  @override
+  Size getSize(BoxConstraints constraints) {
+    return Size(double.infinity, 200);
+  }
+
+  @override
+  bool shouldRepaint(FlowDelegate oldDelegate) {
+    return oldDelegate != this;
   }
 }
