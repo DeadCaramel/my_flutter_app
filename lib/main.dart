@@ -19,7 +19,7 @@ class Test extends StatelessWidget {
       ),
       routes: {
         "new_page": (context) => EchoRoute(),
-        "/": (context) => AlignRoute(),
+        "/": (context) => LayoutBuilderRoute(),
         "tip2": (context) {
           return TipRoute(
               text: ModalRoute.of(context)!.settings.arguments as String);
@@ -1124,48 +1124,148 @@ class AlignRoute extends StatelessWidget {
         title: Text("Align"),
       ),
       body: Container(
-          height: 500,
-          width: 500,
-          color: Colors.blue.shade50,
+          // height: 500,
+          // width: 500,
           child: Column(children: [
-            Container(
-              width: 150,
-              height: 150,
-              child: Align(
-                alignment: Alignment.topRight,
-                widthFactor: 1,
-                heightFactor: 1,
-                child: FlutterLogo(
-                  size: 60,
-                ),
-              ),
+        Container(
+          width: 120,
+          height: 120,
+          color: Colors.blue.shade50,
+          child: Align(
+            alignment: Alignment.topRight,
+            child: FlutterLogo(
+              size: 60,
             ),
-            SizedBox(
-              height: 50,
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+          color: Colors.blue.shade50,
+          child: Align(
+            widthFactor: 2,
+            heightFactor: 2,
+            alignment: Alignment(2.0, 0),
+            child: FlutterLogo(
+              size: 60,
             ),
-            // Container(
-            //   height: 150,
-            //   width: 150,
-            //   child: Align(
-            //     alignment: Alignment(2.0, 0),
-            //     widthFactor: 1,
-            //     heightFactor: 1,
-            //     child: FlutterLogo(
-            //       size: 60,
-            //     ),
-            //   ),
-            // ),
-            // Container(
-            //   height: 250,
-            //   width: 250,
-            //   child: Align(
-            //     alignment: FractionalOffset(0.2, 0.6),
-            //     child: FlutterLogo(
-            //       size: 60,
-            //     ),
-            //   ),
-            // )
-          ])),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+          color: Colors.blue.shade50,
+          child: Align(
+            widthFactor: 2,
+            heightFactor: 2,
+            alignment: FractionalOffset(0.2, 0.6),
+            child: FlutterLogo(
+              size: 60,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        DecoratedBox(
+          decoration: BoxDecoration(color: Colors.red),
+          child: Center(
+            child: Text("xxx"),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        DecoratedBox(
+          decoration: BoxDecoration(color: Colors.red),
+          child: Center(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: Text("xxx"),
+          ),
+        ),
+      ])),
     );
+  }
+}
+
+class ResponsiveColumn extends StatelessWidget {
+  const ResponsiveColumn({Key? key, required this.children}) : super(key: key);
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        if (constraints.maxWidth < 200) {
+          return Column(
+            children: children,
+            mainAxisSize: MainAxisSize.min,
+          );
+        } else {
+          var _children = <Widget>[];
+          for (var i = 0; i < children.length; i += 2) {
+            if (i + 1 < children.length) {
+              _children.add(Row(
+                children: [children[i], children[i + 1]],
+              ));
+            } else {
+              _children.add(children[i]);
+            }
+          }
+          return Column(
+            children: _children,
+            mainAxisSize: MainAxisSize.min,
+          );
+        }
+      },
+    );
+  }
+}
+
+class LayoutBuilderRoute extends StatelessWidget {
+  const LayoutBuilderRoute({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var _children = List.filled(6, Text("A"));
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("LayoutBuilder"),
+      ),
+      body: Column(
+        children: [
+          SizedBox(width: 190, child: ResponsiveColumn(children: _children)),
+          ResponsiveColumn(children: _children),
+          LayoutLogPrint(child: Text("xx"))
+        ],
+      ),
+    );
+  }
+}
+
+class LayoutLogPrint<T> extends StatelessWidget {
+  const LayoutLogPrint({
+    Key? key,
+    this.tag,
+    required this.child,
+  }) : super(key: key);
+
+  final Widget child;
+  final T? tag; //指定日志tag
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (_, constraints) {
+      // assert在编译release版本时会被去除
+      assert(() {
+        print('${tag ?? key ?? child}: $constraints');
+        return true;
+      }());
+      return child;
+    });
   }
 }
