@@ -19,7 +19,7 @@ class Test extends StatelessWidget {
       ),
       routes: {
         "new_page": (context) => EchoRoute(),
-        "/": (context) => WarpAndFlowRoute(),
+        "/": (context) => AlignRoute(),
         "tip2": (context) {
           return TipRoute(
               text: ModalRoute.of(context)!.settings.arguments as String);
@@ -1078,5 +1078,94 @@ class TestFlowDelegate extends FlowDelegate {
   @override
   bool shouldRepaint(FlowDelegate oldDelegate) {
     return oldDelegate != this;
+  }
+}
+
+class StackAndPositioned extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Stack and Positioned"),
+      ),
+      body: ConstrainedBox(
+        constraints: BoxConstraints.expand(),
+        child: Stack(
+          alignment: Alignment.center,
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              left: 18.0,
+              child: Text("I am Jack"),
+            ),
+            Container(
+              child: Text(
+                "Hello world",
+                style: TextStyle(color: Colors.white),
+              ),
+              color: Colors.red,
+            ),
+            Positioned(
+              top: 18.0,
+              child: Text("Your friend"),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AlignRoute extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Align"),
+      ),
+      body: Container(
+          height: 500,
+          width: 500,
+          color: Colors.blue.shade50,
+          child: Column(children: [
+            Container(
+              width: 150,
+              height: 150,
+              child: Align(
+                alignment: Alignment.topRight,
+                widthFactor: 1,
+                heightFactor: 1,
+                child: FlutterLogo(
+                  size: 60,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 50,
+            ),
+            // Container(
+            //   height: 150,
+            //   width: 150,
+            //   child: Align(
+            //     alignment: Alignment(2.0, 0),
+            //     widthFactor: 1,
+            //     heightFactor: 1,
+            //     child: FlutterLogo(
+            //       size: 60,
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   height: 250,
+            //   width: 250,
+            //   child: Align(
+            //     alignment: FractionalOffset(0.2, 0.6),
+            //     child: FlutterLogo(
+            //       size: 60,
+            //     ),
+            //   ),
+            // )
+          ])),
+    );
   }
 }
