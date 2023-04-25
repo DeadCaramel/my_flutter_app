@@ -19,7 +19,7 @@ class Test extends StatelessWidget {
       ),
       routes: {
         "new_page": (context) => EchoRoute(),
-        "/": (context) => LayoutBuilderRoute(),
+        "/": (context) => PaddingTestRoute(),
         "tip2": (context) {
           return TipRoute(
               text: ModalRoute.of(context)!.settings.arguments as String);
@@ -1267,5 +1267,47 @@ class LayoutLogPrint<T> extends StatelessWidget {
       }());
       return child;
     });
+  }
+}
+
+class PaddingTestRoute extends StatelessWidget {
+  const PaddingTestRoute({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Padding"),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              color: Colors.lightBlue,
+              child: Padding(
+                padding: EdgeInsets.only(left: 8),
+                child: Text("Hello world"),
+              ),
+            ),
+            Container(
+              color: Colors.yellow,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text("I am Jack"),
+              ),
+            ),
+            Container(
+              color: Colors.lightGreen,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: Text("Your friend"),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
